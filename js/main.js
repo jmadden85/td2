@@ -3,7 +3,7 @@
     };
 
     Unit.prototype.getPosition = function () {
-        console.log(this);
+        console.log(this.x, this.y);
     };
 
     var  map = {
