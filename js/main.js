@@ -105,15 +105,16 @@
             //Reset units to 0
             this.units = {};
             while ( unitId < num ) {
-                this.units[unitId] = Object.create(Unit.prototype);
-                this.units[unitId].x = 0; //Starts at the left side of the map
-                this.units[unitId].y = this.height - (Math.random() * this.height); //between 0 and canvas height
-                this.units[unitId].speed = speed; //How many pixels it moves per animation
-                this.units[unitId].flying = flying; //Flying or not
-                this.units[unitId].health = health; //Health of unit
-                this.units[unitId].radius = size; //How big the unit is
-                this.units[unitId].color = "black"; //Color of the unit
-                this.units[unitId].id = unitId; //Unit id
+                this.units[unitId] = Object.create(Unit.prototype, {
+                    x : 0, //Starts at the left side of the map
+                    y : this.height - (Math.random() * this.height), //between 0 and canvas height
+                    speed : speed, //How many pixels it moves per animation
+                    flying : flying, //Flying or not
+                    health : health, //Health of unit
+                    radius : size, //How big the unit is
+                    color : "black", //Color of the unit
+                    id : unitId //Unit id
+                });
                 unitId++;
             }
             console.log(this.units);
