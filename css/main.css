@@ -103,6 +103,11 @@ textarea {
     overflow:auto;
 }
 
+.mapBuild {
+    float:left;
+    width:240px;
+}
+
 label, input {
     display:block;
     margin:3px 0;
@@ -115,8 +120,14 @@ button {
 .built {
     border:solid 1px black;
     margin:20px 0;
+    clear:both;
+    display:block;
 }
 
+.debug {
+    float:left;
+    width:100px;
+}
 
 
 

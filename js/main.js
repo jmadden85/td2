@@ -2,27 +2,53 @@
     var Unit = function () {
     };
 
+    Unit.prototype.walk = function () {
+        if (this.x > map.width) {
+            this.x = 0;
+        }
+        this.x += this.speed;
+    };
     Unit.prototype.getPosition = function () {
-        console.log(this.x, this.y);
+
     };
 
     var  map = {
         init : function (width, height, sections, canvas) {
             //Set height, width, section size, and canvas element
-            this.width = parseInt(width, 10) || 500;
+            this.width = parseInt(width, 10) || 800;
             this.height = parseInt(height, 10) || 500;
             this.sectionSize = parseInt(sections, 10) || 25;
             this.map = canvas;
-            //Set prototypal functions for units and towers
-            console.log(this.units.prototype);
             //draw the map
             this.buildMap();
             //set up an object to track different sections
             this.buildSections();
             //Create the units
             this.createUnits();
+            var self = this;
+            //animate every x ms
+            setInterval(function () {
+                    self.animate();
+                }, 30
+            );
+        },
+        animate : function (options, run) {
+            var pause = run || false;
+            //clear map so you don't get dragging lines
+            this.ctx.fillStyle = "white";
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            if (!pause) {
+                this.animation(options);
+            } else {
+                return false;
+            }
         },
         width : 0,
+        debugging : false,
+        debugToggle : function () {
+            this.debugging ? this.debugging = false : this.debugging = true;
+            return this.debugging;
+        },
         height : 0,
         sectionSize : 0,
         buildMap : function () {
@@ -37,10 +63,23 @@
             //Set context for the canvas
             this.ctx = this.map.getContext('2d');
             //draw a grid
-            this.drawGrid('#b9b9b9');
             //Scaling for retina
             //todo Make scale only for retina
-            this.ctx.scale(2, 2);
+        },
+        //All animations are called here
+        animation : function (options) {
+            options === undefined ? options = {} : options;
+            var width = options.width;
+            var height = options.height;
+            var sectionSize = options.sectionSize;
+            var debugging = this.debugging;
+
+            if (debugging) {
+                this.drawGrid('#b9b9b9');
+            }
+
+            this.drawUnits();
+            this.moveUnits();
         },
         drawGrid : function (color) {
             var startX = 0;
@@ -105,19 +144,37 @@
             //Reset units to 0
             this.units = {};
             while ( unitId < num ) {
-                this.units[unitId] = Object.create(Unit.prototype, {
-                    x : 0, //Starts at the left side of the map
-                    y : this.height - (Math.random() * this.height), //between 0 and canvas height
-                    speed : speed, //How many pixels it moves per animation
-                    flying : flying, //Flying or not
-                    health : health, //Health of unit
-                    radius : size, //How big the unit is
-                    color : "black", //Color of the unit
-                    id : unitId //Unit id
-                });
+                this.units[unitId] = Object.create(Unit.prototype);
+                this.units[unitId].x = 0; //Starts at the left side of the map
+                this.units[unitId].y = this.height - (Math.random() * this.height); //between 0 and canvas height
+                this.units[unitId].speed = speed; //How many pixels it moves per animation
+                this.units[unitId].flying = flying; //Flying or not
+                this.units[unitId].health = health; //Health of unit
+                this.units[unitId].radius = size; //How big the unit is
+                this.units[unitId].color = "black"; //Color of the unit
+                this.units[unitId].id = unitId; //Unit id
                 unitId++;
             }
             console.log(this.units);
+        },
+        drawUnits : function () {
+          for (var i in this.units) {
+              var unit = this.units[i];
+              this.ctx.beginPath();
+              this.ctx.arc(unit.x,unit.y, unit.radius, 0, Math.PI*2);
+              this.ctx.textAlign = "center";
+              this.ctx.textBaseline = "bottom";
+              this.ctx.fillText(unit.id, unit.x, unit.y+18);
+              this.ctx.closePath();
+              this.ctx.fillStyle = unit.color;
+              this.ctx.fill();
+          }
+        },
+        moveUnits : function () {
+            for (var i in this.units) {
+                var unit = this.units[i];
+                unit.walk();
+            }
         },
         //Property for sections of the map
         mapSections : {
@@ -135,6 +192,15 @@
 
     var mapButton = document.getElementById('buildMap');
     var canvas = document.getElementById('map');
+    var debugButton = document.getElementById('debugger');
+
+    debugButton.addEventListener("click", function() {
+        if (map.debugToggle()) {
+            this.innerHTML = 'Debug Off';
+        } else {
+            this.innerHTML = 'Debug On';
+        }
+    });
 
     mapButton.addEventListener("click", function() {
         var mapHeight = document.getElementById('height');
