@@ -1,7 +1,7 @@
 (function () {
-
-    var Unit = function () {
-    };
+    "use strict";
+    //Unit class
+    var Unit = function () {};
 
     Unit.prototype.walk = function () {
         if (this.x > map.width) {
@@ -10,10 +10,15 @@
         this.x += this.speed;
     };
     Unit.prototype.getPosition = function () {
-
+        var x = this.x;
+        var y = this.y;
+        return [x, y];
     };
 
-    var  Map = {
+    //Tower class
+    var Tower = function () {};
+
+    var Map = {
         init : function (width, height, sections, canvas) {
 
             //Set height, width, section size, and canvas element
@@ -100,7 +105,7 @@
                 this.drawGrid('#b9b9b9');
             }
 
-            this.drawUnits();
+            this.drawUnits(debugging);
             this.moveUnits();
         },
         drawGrid : function (color) {
@@ -164,7 +169,7 @@
             options === undefined ? options = {} : options;
 
             //Set options or default
-            var num = options.num || 50;
+            var num = options.num || 10;
             var flying = options.flying || false;
             var health = options.health || 100;
             var speed = options.speed || 2.5;
@@ -174,7 +179,7 @@
 
             //Reset units to 0
             this.units = {};
-            while ( unitId < num ) {
+            while (unitId < num) {
                 this.units[unitId] = Object.create(Unit.prototype);
                 this.units[unitId].x = 0; //Starts at the left side of the map
                 this.units[unitId].y = this.height - (Math.random() * this.height); //between 0 and canvas height
@@ -186,16 +191,18 @@
                 this.units[unitId].id = unitId; //Unit id
                 unitId++;
             }
-            console.log(this.units);
         },
-        drawUnits : function () {
+        drawUnits : function (debugging) {
           for (var i in this.units) {
               var unit = this.units[i];
               this.ctx.beginPath();
               this.ctx.arc(unit.x,unit.y, unit.radius, 0, Math.PI*2);
-              this.ctx.textAlign = "center";
-              this.ctx.textBaseline = "bottom";
-              this.ctx.fillText(unit.id, unit.x, unit.y+18);
+              //Show unit info if debugging
+              if (debugging) {
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "bottom";
+                this.ctx.fillText(unit.id + ' (' + Math.round(unit.x) + ', ' + Math.round(unit.y) + ')', unit.x, unit.y + 18);
+              }
               this.ctx.closePath();
               this.ctx.fillStyle = unit.color;
               this.ctx.fill();
@@ -207,15 +214,39 @@
                 unit.walk();
             }
         },
-        //Property for sections of the map
+        createTower : function (options) {
+            options === undefined ? options = {} : options;
+            var damage = options.damage || 10;
+            var range = options.range || 200;
+            var air = options.air || false;
+            var splash = options.splash || false;
+            var speed = options.speed || 10;
+            var element = options.element || none;
+            var towerId = this.towers.id + 1;
+            var coords = options.coords || [0, 0];
+            this.towers[towerId] = Object.create(Tower.prototype);
+            this.towers[towerId].x = coords[0];
+            this.towers[towerId].y = coord[1];
+            this.towers[towerId].damage = damage;
+            this.towers[towerId].range = range;
+            this.towers[towerId].air = air;
+            this.towers[towerId].splash = splash;
+            this.towers[towerId].speed = speed;
+            this.towers[towerId].element = element;
+            this.towers.id++;
+        },
+        drawTower : function (debugging) {
+
+        },
+        //Map Object
         mapSections : {
 
         },
-        //Property to keep track of units
+        //Units Object
         units : {
 
         },
-        //Property for tracking towers
+        //Towers Object
         towers : {
 
         }
