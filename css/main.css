@@ -105,7 +105,7 @@ textarea {
 
 .mapBuild {
     float:left;
-    width:240px;
+    width:300px;
 }
 
 label, input {
@@ -124,9 +124,10 @@ button {
     display:block;
 }
 
-.debug {
+.buttons {
     float:left;
-    width:100px;
+    margin:0 10px;
+    width:150px;
 }
 
 

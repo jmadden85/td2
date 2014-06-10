@@ -1,4 +1,5 @@
 (function () {
+
     var Unit = function () {
     };
 
@@ -12,28 +13,39 @@
 
     };
 
-    var  map = {
+    var  Map = {
         init : function (width, height, sections, canvas) {
+
             //Set height, width, section size, and canvas element
             this.width = parseInt(width, 10) || 800;
             this.height = parseInt(height, 10) || 500;
             this.sectionSize = parseInt(sections, 10) || 25;
             this.map = canvas;
+
             //draw the map
             this.buildMap();
+
             //set up an object to track different sections
             this.buildSections();
+
             //Create the units
             this.createUnits();
+
+            //Safe a reference to this
             var self = this;
+
             //animate every x ms
-            setInterval(function () {
-                    self.animate();
-                }, 30
+            setInterval(
+                function () {
+                    if (!self.pause) {
+                        self.animate();
+                    }
+                }, 20
             );
         },
         animate : function (options, run) {
             var pause = run || false;
+
             //clear map so you don't get dragging lines
             this.ctx.fillStyle = "white";
             this.ctx.fillRect(0, 0, this.width, this.height);
@@ -49,19 +61,29 @@
             this.debugging ? this.debugging = false : this.debugging = true;
             return this.debugging;
         },
+        pause : false,
+        pauseToggle : function () {
+            this.pause ? this.pause = false : this.pause = true;
+            return this.pause;
+        },
         height : 0,
         sectionSize : 0,
         buildMap : function () {
+
             //Set the canvas height and width
             this.map.width = this.width;
             this.map.height = this.height;
+
             //Set the css for height and width
             this.map.style.width = this.width + 'px';
             this.map.style.height = this.height + 'px';
+
             //Add class name for border to kick in
             this.map.className = 'built';
+
             //Set context for the canvas
             this.ctx = this.map.getContext('2d');
+
             //draw a grid
             //Scaling for retina
             //todo Make scale only for retina
@@ -84,6 +106,7 @@
         drawGrid : function (color) {
             var startX = 0;
             var startY = 0;
+
             //drawing vertical lines
             while ( startX < this.width ) {
                 this.ctx.moveTo(startX, 0);
@@ -107,21 +130,26 @@
             }
         },
         buildSections : function () {
+
             //get number of columns
             var x = this.width / this.sectionSize;
+
             //get total number of sections
             var totalSections = (this.width / this.sectionSize) * (this.height / this.sectionSize);
+
             //Loop through and build objects for each section
             //Rows are setup as 1.4 is row one, fourth column
             for ( var i = 0, row = 1, col = 0; i < totalSections; i++ ) {
                 //Increment columns
                 col++;
+
                 //If the iteration mod x(number of columns) equals 0 and it's not the first iteration
                 //Increment the row by 1, and set columns to 1
                 if ( !(i % x) && i !== 0 ) {
                     row++;
                     col = 1;
                 }
+
                 //Create a new object for this section
                 this.mapSections[row + '.' + col] = {
                     occupied : false
@@ -131,8 +159,10 @@
         },
         //Generate the units
         createUnits : function (options) {
+
             //Set options to empty object if not defined
             options === undefined ? options = {} : options;
+
             //Set options or default
             var num = options.num || 50;
             var flying = options.flying || false;
@@ -141,6 +171,7 @@
             var size = options.size || 5;
             var unitId = 0;
             var num = num || 50;
+
             //Reset units to 0
             this.units = {};
             while ( unitId < num ) {
@@ -193,12 +224,21 @@
     var mapButton = document.getElementById('buildMap');
     var canvas = document.getElementById('map');
     var debugButton = document.getElementById('debugger');
+    var pauseButton = document.getElementById('pause');
 
-    debugButton.addEventListener("click", function() {
-        if (map.debugToggle()) {
+    debugButton.addEventListener("click", function () {
+        if (Map.debugToggle()) {
             this.innerHTML = 'Debug Off';
         } else {
             this.innerHTML = 'Debug On';
+        }
+    });
+
+    pauseButton.addEventListener("click", function () {
+        if (Map.pauseToggle()) {
+            this.innerHTML = 'Unpause';
+        } else {
+            this.innerHTML = 'Pause';
         }
     });
 
@@ -206,7 +246,7 @@
         var mapHeight = document.getElementById('height');
         var mapWidth = document.getElementById('width');
         var mapSections = document.getElementById('section');
-        map.init(mapWidth.value, mapHeight.value, mapSections.value, canvas);
+        Map.init(mapWidth.value, mapHeight.value, mapSections.value, canvas);
     });
 
 })();
