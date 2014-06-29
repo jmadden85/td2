@@ -9,6 +9,7 @@
         }
         this.x += this.speed;
     };
+
     Unit.prototype.getPosition = function () {
         var x = this.x;
         var y = this.y;
@@ -16,7 +17,9 @@
     };
 
     //Tower class
-    var Tower = function () {};
+    var Tower = function () {
+
+    };
 
     var Map = {
         init : function (width, height, sections, canvas) {
