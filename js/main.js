@@ -224,7 +224,7 @@
             var air = options.air || false;
             var splash = options.splash || false;
             var speed = options.speed || 10;
-            var element = options.element || none;
+            var element = options.element || 'none';
             var towerId = this.towers.id + 1;
             var coords = options.coords || [0, 0];
             this.towers[towerId] = Object.create(Tower.prototype);
@@ -260,6 +260,16 @@
     var debugButton = document.getElementById('debugger');
     var pauseButton = document.getElementById('pause');
 
+    canvas.addEventListener("click", function (event) {
+        var coords = {
+            x : event.offsetX,
+            y : event.offsetY
+        };
+        var sectionSize = Map.sectionSize;
+        var thisSection = Math.ceil(coords.y / sectionSize) + '.' + Math.ceil(coords.x / sectionSize);
+        console.log(coords, sectionSize, Map.mapSections[thisSection]);
+    });
+    
     debugButton.addEventListener("click", function () {
         if (Map.debugToggle()) {
             this.innerHTML = 'Debug Off';
