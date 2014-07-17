@@ -16,10 +16,19 @@
         return [x, y];
     };
 
-    //Tower class
-    var Tower = function () {
+    //Pathing object
+    var Pathfinder = function () {
 
     };
+
+    Pathfinder.prototype = Unit.prototype;
+
+    Pathfinder.prototype.breadCrumbs = function () {
+
+    };
+
+    //Tower class
+    var Tower = function () {};
 
     var Map = {
         init : function (width, height, sections, canvas) {
@@ -39,6 +48,9 @@
             //Create the units
             this.createUnits();
 
+            //Find a path
+            this.createPath();
+
             //Safe a reference to this
             var self = this;
 
@@ -51,6 +63,8 @@
                 }, 20
             );
         },
+        //Boolean for whether or not pathfinder has completed
+        pathFound : false,
         animate : function (options, run) {
             var pause = run || false;
 
@@ -108,8 +122,12 @@
                 this.drawGrid('#b9b9b9');
             }
 
-            this.drawUnits(debugging);
-            this.moveUnits();
+            this.drawTowers(debugging);
+            //Make sure the path is known
+            if (this.pathFound) {
+                this.drawUnits(debugging);
+                this.moveUnits();
+            }
         },
         drawGrid : function (color) {
             var startX = 0;
@@ -138,7 +156,6 @@
             }
         },
         buildSections : function () {
-
             //get number of columns
             var x = this.width / this.sectionSize;
 
@@ -163,11 +180,9 @@
                     occupied : false
                 }
             }
-            console.log(this.mapSections);
         },
         //Generate the units
         createUnits : function (options) {
-
             //Set options to empty object if not defined
             options === undefined ? options = {} : options;
 
@@ -199,7 +214,7 @@
           for (var i in this.units) {
               var unit = this.units[i];
               this.ctx.beginPath();
-              this.ctx.arc(unit.x,unit.y, unit.radius, 0, Math.PI*2);
+              this.ctx.arc(unit.x, unit.y, unit.radius, 0, Math.PI * 2);
               //Show unit info if debugging
               if (debugging) {
                 this.ctx.textAlign = "center";
@@ -217,6 +232,31 @@
                 unit.walk();
             }
         },
+        createPath : function (options) {
+            options === undefined ? options = {} : options;
+            var speed = options.speed || 5;
+            var attempts = {};
+            var paths = {};
+            var pathMan = Object.create(Pathfinder.prototype);
+            var that = this;
+            pathMan.x = 0;
+            pathMan.y = 0;
+            pathMan.speed = speed;
+            pathMan.size = 5;
+
+            var drawPath = function () {
+                that.ctx.beginPath();
+                that.ctx.arc(pathMan.x, pathMan.y, pathMan.size, 0, Math.PI * 2)
+                that.ctx.closePath();
+                that.ctx.fillStyle = '#000';
+                that.ctx.fill();
+                if (pathMan.x > that.width) {
+                    return 'completed';
+                }
+            };
+
+            this.pathFound = true;
+        },
         createTower : function (options) {
             options === undefined ? options = {} : options;
             var damage = options.damage || 10;
@@ -228,8 +268,8 @@
             var towerId = this.towers.id + 1;
             var coords = options.coords || [0, 0];
             this.towers[towerId] = Object.create(Tower.prototype);
-            this.towers[towerId].x = coords[0];
-            this.towers[towerId].y = coord[1];
+            this.towers[towerId].x = coords[0] - this.sectionSize;
+            this.towers[towerId].y = coords[1] - this.sectionSize;
             this.towers[towerId].damage = damage;
             this.towers[towerId].range = range;
             this.towers[towerId].air = air;
@@ -237,9 +277,14 @@
             this.towers[towerId].speed = speed;
             this.towers[towerId].element = element;
             this.towers.id++;
+            this.pathFound = false;
+            this.createPath();
         },
-        drawTower : function (debugging) {
-
+        drawTowers : function (debugging) {
+            for (var i in this.towers) {
+                this.ctx.rect(this.towers[i].x, this.towers[i].y, this.sectionSize, this.sectionSize);
+                this.ctx.stroke();
+            }
         },
         //Map Object
         mapSections : {
@@ -251,7 +296,7 @@
         },
         //Towers Object
         towers : {
-
+            id: 0
         }
     };
 
@@ -261,13 +306,27 @@
     var pauseButton = document.getElementById('pause');
 
     canvas.addEventListener("click", function (event) {
+        //Get coordinates of clicked area
         var coords = {
             x : event.offsetX,
             y : event.offsetY
         };
+        //Map clicked area to correct section in the mapSections object
         var sectionSize = Map.sectionSize;
-        var thisSection = Math.ceil(coords.y / sectionSize) + '.' + Math.ceil(coords.x / sectionSize);
-        console.log(coords, sectionSize, Map.mapSections[thisSection]);
+        var sectionX = Math.ceil(coords.x / sectionSize);
+        var sectionY = Math.ceil(coords.y / sectionSize);
+        var thisSection = Map.mapSections[sectionY + '.' + sectionX];
+        var occupied = thisSection.occupied;
+        //Check if the area is occupied
+        if (!occupied) {
+            //Create tower with coords and change occupied to true
+            Map.createTower({
+                coords: [sectionX * sectionSize, sectionY * sectionSize]
+            });
+            thisSection.occupied = true;
+        } else {
+            console.log('blocked');
+        }
     });
     
     debugButton.addEventListener("click", function () {
