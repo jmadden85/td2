@@ -4,7 +4,7 @@
     var Unit = function () {};
 
     Unit.prototype.walk = function () {
-        if (this.x > map.width) {
+        if (this.x > Map.width) {
             this.x = 0;
         }
         this.x += this.speed;
@@ -200,7 +200,7 @@
             while (unitId < num) {
                 this.units[unitId] = Object.create(Unit.prototype);
                 this.units[unitId].x = 0; //Starts at the left side of the map
-                this.units[unitId].y = this.height - (Math.random() * this.height); //between 0 and canvas height
+                this.units[unitId].y = (this.height / 2 + 10) - (Math.random() * 20); //middle of canvas plus or minus 2.5px
                 this.units[unitId].speed = speed; //How many pixels it moves per animation
                 this.units[unitId].flying = flying; //Flying or not
                 this.units[unitId].health = health; //Health of unit
@@ -240,7 +240,7 @@
             var pathMan = Object.create(Pathfinder.prototype);
             var that = this;
             pathMan.x = 0;
-            pathMan.y = 0;
+            pathMan.y = this.height / 2;
             pathMan.speed = speed;
             pathMan.size = 5;
 
@@ -255,7 +255,16 @@
                 }
             };
 
-            this.pathFound = true;
+            var walking = setInterval(function () {
+                var currentPosition = pathMan.getPosition();
+                var currentPosObj = that.mapSections[Math.ceil(currentPosition[1] / that.sectionSize) + '.' + Math.ceil(currentPosition[0] / that.sectionSize)];
+                if (drawPath() !== 'completed') {
+                    pathMan.walk();
+                } else {
+                    that.pathFound = true;
+                    clearInterval(walking);
+                }
+            }, 20);
         },
         createTower : function (options) {
             options === undefined ? options = {} : options;
