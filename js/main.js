@@ -1,5 +1,6 @@
 (function () {
     "use strict";
+
     //Unit class
     var Unit = function () {};
 
@@ -337,7 +338,7 @@
             console.log('blocked');
         }
     });
-    
+
     debugButton.addEventListener("click", function () {
         if (Map.debugToggle()) {
             this.innerHTML = 'Debug Off';
