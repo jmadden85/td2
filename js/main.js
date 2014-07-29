@@ -66,6 +66,7 @@
         },
         //Boolean for whether or not pathfinder has completed
         pathFound : false,
+        //Animate Method
         animate : function (options, run) {
             var pause = run || false;
 
@@ -78,17 +79,22 @@
                 return false;
             }
         },
-        width : 0,
+        //Debugging property
         debugging : false,
+        //Debugging toggle
         debugToggle : function () {
             this.debugging ? this.debugging = false : this.debugging = true;
             return this.debugging;
         },
+        //Pause property
         pause : false,
+        //Pause toggle
         pauseToggle : function () {
             this.pause ? this.pause = false : this.pause = true;
             return this.pause;
         },
+        //Map properties
+        width : 0,
         height : 0,
         sectionSize : 0,
         buildMap : function () {
@@ -130,6 +136,7 @@
                 this.moveUnits();
             }
         },
+        //Debugging grid visibility
         drawGrid : function (color) {
             var startX = 0;
             var startY = 0;
@@ -156,6 +163,7 @@
                 startY += this.sectionSize;
             }
         },
+        //Generate sections into sections object based on sections size property
         buildSections : function () {
             //get number of columns
             var x = this.width / this.sectionSize;
@@ -211,6 +219,7 @@
                 unitId++;
             }
         },
+        //Draw units with debugging options
         drawUnits : function (debugging) {
           for (var i in this.units) {
               var unit = this.units[i];
@@ -227,6 +236,7 @@
               this.ctx.fill();
           }
         },
+        //Walk the units
         moveUnits : function () {
             for (var i in this.units) {
                 var unit = this.units[i];
@@ -235,7 +245,7 @@
         },
         createPath : function (options) {
             options === undefined ? options = {} : options;
-            var speed = options.speed || 5;
+            var speed = options.speed || 15;
             var attempts = {};
             var paths = {};
             var pathMan = Object.create(Pathfinder.prototype);
@@ -267,6 +277,7 @@
                 }
             }, 20);
         },
+        //Tower creating method with options
         createTower : function (options) {
             options === undefined ? options = {} : options;
             var damage = options.damage || 10;
@@ -290,6 +301,7 @@
             this.pathFound = false;
             this.createPath();
         },
+        //Draw towers method
         drawTowers : function (debugging) {
             for (var i in this.towers) {
                 this.ctx.rect(this.towers[i].x, this.towers[i].y, this.sectionSize, this.sectionSize);
