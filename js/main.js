@@ -66,6 +66,8 @@
         },
         //Boolean for whether or not pathfinder has completed
         pathFound : false,
+        //Path array {
+        optimalPath : [],
         //Animate Method
         animate : function (options, run) {
             var pause = run || false;
@@ -245,11 +247,11 @@
         },
         createPath : function (options) {
             options === undefined ? options = {} : options;
-            var speed = options.speed || 15;
+            var that = this;
+            var speed = options.speed || that.sectionSize - 5;
             var attempts = {};
             var paths = {};
             var pathMan = Object.create(Pathfinder.prototype);
-            var that = this;
             pathMan.x = 0;
             pathMan.y = this.height / 2;
             pathMan.speed = speed;
@@ -271,8 +273,10 @@
                 var currentPosObj = that.mapSections[Math.ceil(currentPosition[1] / that.sectionSize) + '.' + Math.ceil(currentPosition[0] / that.sectionSize)];
                 if (drawPath() !== 'completed') {
                     pathMan.walk();
+                    that.optimalPath.push(currentPosObj);
                 } else {
                     that.pathFound = true;
+                    console.log(that.optimalPath);
                     clearInterval(walking);
                 }
             }, 20);
